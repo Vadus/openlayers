@@ -1,0 +1,14 @@
+# Automatically abort script on errors
+option batch abort
+# Disable overwrite confirmations that conflict with the previous
+option confirm off
+# Connect
+open %1%
+# Force binary mode transfer
+option transfer binary
+# Upload the file to current working directory
+put %2%
+# Disconnect
+close
+# Exit WinSCP
+exit
