@@ -3,6 +3,7 @@ package org.klarblick.openlayers;
 import java.util.logging.Logger;
 
 import org.junit.Test;
+import org.klarblick.openlayers.map.domain.MapElement;
 
 public class MapTest {
 

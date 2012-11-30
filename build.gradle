@@ -2,13 +2,34 @@ apply plugin: 'war'
 
 repositories {
 	mavenCentral()
+	
+	maven {url 'https://maven.java.net/content/groups/public/'}
 }
 
+//configurations {
+//	runtime.exclude module:'jersey-gf-servlet'
+//}
+
 dependencies {
-	compile ('javax.ws.rs:jsr311-api:1.1.1')
-	runtime (
+	compile ('javax.ws.rs:jsr311-api:1.1.1',
+			 'javax.faces:jsf-api:2.0',
+			 'com.sun.jersey:jersey-core:1.8',
 			 'com.sun.jersey:jersey-server:1.8',
-			 'com.sun.jersey:jersey-core:1.8')
+			 'javax.servlet:javax.servlet-api:3.0.1',
+			 'com.sun.jersey.glassfish.v3.osgi:jersey-gf-servlet:1.11',
+			 'com.sun.faces:jsf-impl:2.0.6',
+			 'javax.inject:javax.inject:1',
+			 'javax.enterprise:cdi-api:1.0-SP4',
+			 'javax.annotation:jsr250-api:1.0',
+			 'org.glassfish.main.ejb:javax.ejb:3.1.2')
+	runtime (
+			 'org.jboss.weld.servlet:weld-servlet:1.1.8.Final'
+			 )
+}
+
+war {
+	excludes = ['WEB-INF/web.xml' ]
+	webXml = file("$rootDir/conf/main/tomcat/web.xml")
 }
 
 task props << {
@@ -18,4 +39,14 @@ task props << {
 task deploy(type:Exec) {
 	workingDir winscp
 	commandLine 'cmd', '/c', 'winscp.exe /console /script='+deployScript+' /parameter sftp://'+deployHost+' ' + deployFile
+}
+
+task tomcat(dependsOn: 'war') << {
+	delete "${tomcatHome}/webapps/" + war.archiveName
+	println 'sleeping 10 secs..'
+//	sleep(10000)
+    copy {
+        from war.archivePath
+        into "${tomcatHome}/webapps"
+    }
 }
