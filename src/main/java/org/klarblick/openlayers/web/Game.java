@@ -25,10 +25,6 @@ public class Game implements Serializable {
 	private Integer numberOfElements = 50;
 	private Boolean debug = false;
 
-	public MapService getMapService() {
-		return mapService;
-	}
-
 	public void setMapId(Integer mapId) {
 		this.mapId = mapId;
 	}
