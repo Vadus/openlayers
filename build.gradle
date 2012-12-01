@@ -36,7 +36,7 @@ task props << {
 	println winscp
 }
 
-task deploy(type:Exec) {
+task deploy(type:Exec, dependsOn: 'war') {
 	workingDir winscp
 	commandLine 'cmd', '/c', 'winscp.exe /console /script='+deployScript+' /parameter sftp://'+deployHost+' ' + deployFile
 }
