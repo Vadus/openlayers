@@ -1,4 +1,4 @@
-var galaxy = new function (){
+function Galaxy (){
 
 	/*****************************
 	* VARIABLES
@@ -8,37 +8,51 @@ var galaxy = new function (){
 	* OBJECTS
 	*****************************/
 	var map;
-	var mapImages;
+	var imageLayer;
 	
 	/*****************************
 	* PUBLIC FUNCTIONS
 	*****************************/
-	this.init = function(mapId, mapDiv) {
-		
-		mapImages = new OpenLayers.Layer.XYZ(
-	            "Imagery",
-	            [
-					  "jaxrs/map/"+mapId+"/${z}/${x}/${y}"
-	            ],
-	            {
-	                transitionEffect: "resize"
-	            }
-	        );
-		
-		map = new OpenLayers.Map({
-		    div: mapDiv,
-		    projection: "EPSG:900913",
-		    layers: [ mapImages ],
-		    center: [0, 0],
-		    zoom: 1,
-		    numZoomLevels: 4//,
-		    //minExtent: new OpenLayers.Bounds(-1, -1, 1, 1)
-		});
-		
-		map.addControl(new OpenLayers.Control.LayerSwitcher());
-	};
+};
+
+Galaxy.prototype.init = function(mapDiv, mapId, maxZoom) {
 	
-	this.update = function(){
-		mapImages.redraw(true);
-	};
+	imageLayer = new OpenLayers.Layer.XYZ(
+            "StarMap",
+            [
+				  "jaxrs/map/"+mapId+"/${z}/${x}/${y}"
+            ],
+            {
+                transitionEffect: "resize"
+            }
+        );
+	
+	
+	
+	map = new OpenLayers.Map({
+	    div: mapDiv,
+	    projection: "EPSG:900913",
+	    layers: [ imageLayer ],
+	    controls: [ new OpenLayers.Control.LayerSwitcher(),
+	                new OpenLayers.Control.Navigation(),
+	                new OpenLayers.Control.MousePosition(),
+	                new OpenLayers.Control.Zoom(),
+	                new OpenLayers.Control.OverviewMap() 
+	    		  ],
+	    center: [0, 0],
+	    zoom: 1,
+	    numZoomLevels: maxZoom//,
+	    //minExtent: new OpenLayers.Bounds(-1, -1, 1, 1)
+	});
+	
+	var overview = new OpenLayers.Control.OverviewMap({
+	    mapOptions: {
+	        numZoomLevels: 1
+	    }
+	});
+	map.addControl(overview);
+};
+
+Galaxy.prototype.update = function(){
+	imageLayer.redraw(true);
 };

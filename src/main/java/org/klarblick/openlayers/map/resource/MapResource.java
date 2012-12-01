@@ -30,7 +30,7 @@ public class MapResource implements Serializable {
 			.getName());
 
 	public static final int TILE_WIDTH = 256;
-	public static final int MAX_ZOOM = 3;
+	public static final int MAX_ZOOM = 4;
 	public static final int MAX_WIDTH = (int) (Math.pow(2, MAX_ZOOM) * TILE_WIDTH);
 
 	@Inject
@@ -71,13 +71,13 @@ public class MapResource implements Serializable {
 				g.drawRect(0, 0, TILE_WIDTH, TILE_WIDTH);
 
 				g.drawString("Tile " + x + "," + y + " at " + (x * TILE_WIDTH)
-						+ "," + (y * TILE_WIDTH), 5, 12);
+						+ "," + (y * TILE_WIDTH) + ", zoom=" + z, 5, 12);
 
 			}
 
 			for (MapElement mapElement : map.getElements()) {
 				mapElement.calcPositions(z, x, y);
-				if (mapElement.isInTile(x, y)) {
+				if (mapElement.isInTile(z, x, y)) {
 					log.info("Element " + mapElement.getId() + " is at "
 							+ mapElement.getPosX() + ", "
 							+ mapElement.getPosY() + "("

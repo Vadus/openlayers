@@ -40,11 +40,22 @@ public class MapElement implements Serializable {
 
 	public void calcPositions(int zoom, int x, int y) {
 		int mapWidth = (int) (Math.pow(2, zoom) * MapResource.TILE_WIDTH);
-		posX = (int) (mapWidth / (double) 100 * xPercent);
-		posY = (int) (mapWidth / (double) 100 * yPercent);
 
-		tileX = posX - (x * MapResource.TILE_WIDTH);
-		tileY = posY - (y * MapResource.TILE_WIDTH);
+		if (y >= 0) {
+			posX = (int) (mapWidth / (double) 100 * xPercent);
+			tileX = posX - (x * MapResource.TILE_WIDTH);
+
+			posY = (int) (mapWidth / (double) 100 * yPercent);
+			tileY = posY - (y * MapResource.TILE_WIDTH);
+		} else if (zoom == 0) {
+			// minimap in ( 180px x 90px ) frame
+			posX = (int) (90 / (double) 100 * xPercent);
+			tileX = posX;
+
+			posY = (int) (90 / (double) 100 * yPercent);
+			tileY = posY + (MapResource.TILE_WIDTH - 90);
+
+		}
 	}
 
 	public int getId() {
@@ -67,13 +78,29 @@ public class MapElement implements Serializable {
 		return tileY;
 	}
 
-	public boolean isInTile(int x, int y) {
-		int xTile = x * MapResource.TILE_WIDTH;
-		int yTile = y * MapResource.TILE_WIDTH;
-		return getPosX() >= xTile
-				&& getPosX() <= xTile + MapResource.TILE_WIDTH
-				&& getPosY() >= yTile
-				&& getPosY() <= yTile + MapResource.TILE_WIDTH;
+	public boolean isInTile(int zoom, int x, int y) {
+		if (zoom == 0) {
+			// Max Zoom, all Elements are always in minimap
+			return true;
+		}
+		if (y >= 0) {
+			int xTile = x * MapResource.TILE_WIDTH;
+			int yTile = y * MapResource.TILE_WIDTH;
+			return getPosX() >= xTile
+					&& getPosX() <= xTile + MapResource.TILE_WIDTH
+					&& getPosY() >= yTile
+					&& getPosY() <= yTile + MapResource.TILE_WIDTH;
+		} else {
+			// check if tile is part of the minimap tile
+			int xTile = x * MapResource.TILE_WIDTH;
+			int yTile = y * MapResource.TILE_WIDTH + 90;
+			return getPosX() >= xTile
+					&& getPosX() <= xTile + MapResource.TILE_WIDTH
+					&& getPosY() >= yTile
+					&& getPosY() <= yTile + MapResource.TILE_WIDTH;
+
+		}
+
 	}
 
 	public Color getColor() {

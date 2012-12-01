@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.klarblick.openlayers.map.domain.Map;
+import org.klarblick.openlayers.map.resource.MapResource;
 import org.klarblick.openlayers.map.service.MapService;
 
 @Named
@@ -65,6 +66,10 @@ public class Game implements Serializable {
 
 	public void setDebug(Boolean debug) {
 		this.debug = debug;
+	}
+
+	public int getMaxZoom() {
+		return MapResource.MAX_ZOOM + 1;
 	}
 
 }
