@@ -8,6 +8,7 @@ function Galaxy (){
 	* OBJECTS
 	*****************************/
 	var map;
+	var infoControls;
 	var imageLayer;
 	
 	/*****************************
@@ -45,6 +46,21 @@ Galaxy.prototype.init = function(mapDiv, mapId, maxZoom) {
 	    //minExtent: new OpenLayers.Bounds(-1, -1, 1, 1)
 	});
 	
+	infoControls = {
+            click: new OpenLayers.Control.WMSGetFeatureInfo({
+                url: '/wms', 
+                title: 'Identify features by clicking',
+                layers: [imageLayer],
+                queryVisible: true
+            })
+	};
+	
+    for (var i in infoControls) { 
+        infoControls[i].events.register("getfeatureinfo", this, this.showInfo);
+        map.addControl(infoControls[i]); 
+    }
+    infoControls.click.activate();
+	
 	var overview = new OpenLayers.Control.OverviewMap({
 	    mapOptions: {
 	        numZoomLevels: 1
@@ -56,3 +72,14 @@ Galaxy.prototype.init = function(mapDiv, mapId, maxZoom) {
 Galaxy.prototype.update = function(){
 	imageLayer.redraw(true);
 };
+
+
+function showInfo(evt) {
+    if (evt.features && evt.features.length) {
+         highlightLayer.destroyFeatures();
+         highlightLayer.addFeatures(evt.features);
+         highlightLayer.redraw();
+    } else {
+        document.getElementById('responseText').innerHTML = evt.text;
+    }
+}
