@@ -117,6 +117,58 @@ public class MapResource implements Serializable {
 	}
 
 	@GET
+	@Produces("image/png")
+	@Path("base/{i}/{z}/{x}/{y}")
+	public byte[] getBaseMap(@PathParam("i") int mapId, @PathParam("z") int z,
+			@PathParam("x") int x, @PathParam("y") int y) {
+
+		log.info("--> getMap(" + mapId + "), zoom=" + z + ", tile=" + x + ","
+				+ y);
+
+		BufferedImage bi = new BufferedImage(TILE_WIDTH, TILE_WIDTH,
+				BufferedImage.TYPE_3BYTE_BGR);
+		Graphics2D g = (Graphics2D) bi.getGraphics();
+
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, TILE_WIDTH, TILE_WIDTH);
+
+		// Map map = mapService.createMap(50);
+		Map map = mapService.getMap(mapId);
+		// if (map == null) {
+		// map = mapService.createMap(50);
+		// mapId = mapService.storeMap(map);
+		// }
+
+		if (map != null) {
+
+			if (map.getDebug()) {
+
+				g.setColor(Color.WHITE);
+				g.drawRect(0, 0, TILE_WIDTH, TILE_WIDTH);
+
+				g.drawString("Tile " + x + "," + y + " at " + (x * TILE_WIDTH)
+						+ "," + (y * TILE_WIDTH) + ", zoom=" + z, 5, 12);
+
+			}
+			g.dispose();
+
+			try {
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ImageIO.write(bi, "png", baos);
+				byte[] bytesOut = baos.toByteArray();
+
+				return bytesOut;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			log.info("Requested Map " + mapId + " does not exist");
+		}
+
+		return new byte[] {};
+	}
+
+	@GET
 	@Produces("text/plain")
 	@Path("count")
 	public String getMapCount() {

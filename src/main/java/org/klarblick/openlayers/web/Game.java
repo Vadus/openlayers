@@ -7,6 +7,8 @@ import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.klarblick.openlayers.feature.domain.Feature;
+import org.klarblick.openlayers.feature.service.FeatureService;
 import org.klarblick.openlayers.map.domain.Map;
 import org.klarblick.openlayers.map.resource.MapResource;
 import org.klarblick.openlayers.map.service.MapService;
@@ -21,6 +23,9 @@ public class Game implements Serializable {
 
 	@Inject
 	private MapService mapService;
+
+	@Inject
+	private FeatureService featureService;
 
 	private Integer mapId;
 	private Integer numberOfElements = 50;
@@ -39,6 +44,9 @@ public class Game implements Serializable {
 		Map map = mapService.createMap(numberOfElements);
 		map.setDebug(debug);
 		mapService.storeMap(map);
+
+		Feature[] features = featureService.createFeatures(numberOfElements);
+		featureService.storeFeatures(features);
 
 		mapId = map.getId();
 

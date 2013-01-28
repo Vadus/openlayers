@@ -61,7 +61,7 @@ var style = new OpenLayers.Style({
     ]
 });
 
-var layer = new OpenLayers.Layer.Vector(null, {
+var stars = new OpenLayers.Layer.Vector(null, {
     styleMap: new OpenLayers.StyleMap({
         "default": style,
         select: {
@@ -74,7 +74,7 @@ var layer = new OpenLayers.Layer.Vector(null, {
     isBaseLayer: true,
     renderers: ["Canvas"]
 });
-layer.addFeatures(features);
+stars.addFeatures(features);
 
 var map = new OpenLayers.Map({
     div: "map",
@@ -83,6 +83,6 @@ var map = new OpenLayers.Map({
     zoom: 0
 });
 
-var select = new OpenLayers.Control.SelectFeature(layer);
+var select = new OpenLayers.Control.SelectFeature(stars);
 map.addControl(select);
 select.activate();

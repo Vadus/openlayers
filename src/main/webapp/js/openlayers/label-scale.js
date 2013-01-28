@@ -1,16 +1,49 @@
+/*
+function addPoint(features, index, posX, posY){
+	
+	features[index] = new OpenLayers.Feature.Vector(
+	        new OpenLayers.Geometry.Point(posX, posY), {
+	            //type: 5 + parseInt(5 * Math.random()),
+	        	
+	        	type: index,
+	            foo: 100 * Math.random() | 0,
+	            posX: posX,
+	            posY: posY
+	        }
+	    );
+}
+*/
 // Create 50 random features, and give them a "type" attribute that
 // will be used for the label text.
-var features = new Array(50);
-for (var i=0; i<features.length; i++) {
-    features[i] = new OpenLayers.Feature.Vector(
-        new OpenLayers.Geometry.Point(
-            (360 * Math.random()) - 180, (180 * Math.random()) - 90
-        ), {
-            type: 5 + parseInt(5 * Math.random()),
-            foo: 100 * Math.random() | 0
-        }
-    );
+//var features = new Array(5);
+/*
+var posX = 0;
+var posY = 0;
+//for (var i=0; i<features.length; i++) {
+for (var i=0; i<50; i++) {
+	posX = (360 * Math.random()) - 180;
+	posY = (180 * Math.random()) - 90;
+	
+	addPoint(features, i, posX, posY);
 }
+*/
+
+/* for default projection
+addPoint(features, 0, 0, 0);
+addPoint(features, 1, -180, 270);
+addPoint(features, 2, -180, -90);
+addPoint(features, 3, 180, 270);
+addPoint(features, 4, 180, -90);
+*/
+
+/* for projection EPSG:900913*/
+/*
+addPoint(features, 0, 0, 0);
+addPoint(features, 1, -20000000, -20000000);
+addPoint(features, 2, -20000000, 20000000);
+addPoint(features, 3, 20000000, 20000000);
+addPoint(features, 4, 20000000, -20000000);
+*/
 
 /**
  * To execute ajax ( to load some more features at a certain zoom level,
@@ -35,23 +68,23 @@ var style = new OpenLayers.Style({
         new OpenLayers.Rule({
             minScaleDenominator: 200000000,
             symbolizer: {
-                pointRadius: 7,
-                fontSize: "9px"
+                pointRadius: 4,
+                fontSize: "6px"
             }
         }),
         new OpenLayers.Rule({
             maxScaleDenominator: 200000000,
             minScaleDenominator: 100000000,
             symbolizer: {
-                pointRadius: 10,
+                pointRadius: 8,
                 fontSize: "12px"
             }
         }),
         new OpenLayers.Rule({
             maxScaleDenominator: 100000000,
             symbolizer: {
-                pointRadius: 13,
-                fontSize: "15px"
+                pointRadius: 12,
+                fontSize: "18px"
             }
         }),
         new OpenLayers.Rule({
@@ -109,6 +142,7 @@ points.addFeatures(features);
 
 var map = new OpenLayers.Map({
     div: "map",
+    /*
     layers: [
         new OpenLayers.Layer.WMS(
             "OpenLayers WMS",
@@ -117,15 +151,29 @@ var map = new OpenLayers.Map({
         ),
         points
     ],
+    */
+    projection: "EPSG:900913",
+    layers: [
+	new OpenLayers.Layer.XYZ(
+	        "StarMap",
+	        [
+				  "jaxrs/map/1/${z}/${x}/${y}"
+	        ],
+	        {
+	            transitionEffect: "resize"
+	        }
+	    ),
+	    points
+    ],
     controls: [ new OpenLayers.Control.LayerSwitcher(),
                 new OpenLayers.Control.Navigation(),
                 new OpenLayers.Control.MousePosition(),
                 new OpenLayers.Control.Zoom()
     		  ],
-    center: new OpenLayers.LonLat(0, 0),
+    //center: new OpenLayers.LonLat(0, 0),
+    center: [0, 0],
     zoom: 1
 });
-
 
 var selectControl = new OpenLayers.Control.SelectFeature(points);
 map.addControl(selectControl);
@@ -151,7 +199,9 @@ function onFeatureSelect(evt) {
     popup = new OpenLayers.Popup.FramedCloud("featurePopup",
                              feature.geometry.getBounds().getCenterLonLat(),
                              new OpenLayers.Size(100,100),
-                             "<h2>"+feature.attributes.foo + "</h2>",
+                             "<h2>"+feature.attributes.foo + "</h2>"
+                             + feature.attributes.posX + ","
+                             + feature.attributes.posY,
                              null, true, onPopupClose);
     feature.popup = popup;
     popup.feature = feature;
