@@ -40,7 +40,12 @@
 				var items = [];
 				var newFeatures = [];
 				var planetList = [];
-				$.each(data.feature, function(i, f) {
+				
+				var datafeature = data.feature;
+				if(datafeature === undefined){
+					datafeature = data;
+				}
+				$.each(datafeature, function(i, f) {
 					items.push('<li id="' + f.id + '">Star ' + (i+5) + ' at '+ f.posX + ',' + f.posY+'</li>');
 					items.push('<li id="' + f.id + '">Planet ' + i + ' at '+ (parseInt(f.posX) + 500000) + ',' + f.posY+'</li>');
 					addPoint(newFeatures, i+5, f.posX, f.posY);
