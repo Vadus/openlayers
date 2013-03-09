@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>OpenLayers Scale Dependent Labels</title>
+    <link rel="stylesheet" href="css/theme/default/style.css" type="text/css"/>
+    <link rel="stylesheet" href="css/style.css" type="text/css"/>
+    <style type="text/css">
+    	#header {
+			width: 100%;
+			height: 50px;
+			margin: 0;
+			padding: 0;
+		} 
+		#main {
+			width: 1024px;
+			height:768px;
+			padding: 0;
+			margin: 0;
+		} 
+		#menu {
+			width: 230px;
+			height:768px;
+			padding: 0;
+			margin: 0;
+		} 
+		#footer {
+			width: 100%;
+			height: 50px;
+			margin: 0;
+			padding: 0;
+		} 
+	</style>
+    <script src="js/openlayers/OpenLayers.js" type="text/javascript"></script>
+    <script src="http://code.jquery.com/jquery-1.8.3.js"></script>
+    <script>
+	    function addPoint(features, index, posX, posY){
+			
+			features.push(new OpenLayers.Feature.Vector(
+			        new OpenLayers.Geometry.Point(posX, posY), {
+			        	type: index,
+			            //foo: 100 * Math.random() | 0,
+			            foo: index,
+			            posX: posX,
+			            posY: posY
+			        }
+			    ));
+		}
+    
+		$(document).ready(function(){
+			
+			var features = [];
+			
+			addPoint(features, 0, 0, 0);
+			addPoint(features, 1, -180, -180);
+			addPoint(features, 2, -180, 180);
+			addPoint(features, 3, 180, 180);
+			addPoint(features, 4, 180, -180);
+			
+			$.getJSON('/openlayers/jaxrs/galaxy/1/systems', function(data) {
+				//alert("JSON Data: " + data.feature[0].id);
+				var systemLog = [];
+				var systemList = [];
+				var planetList = [];
+				
+				var datafeature = data.starSystem;
+				if(datafeature === undefined){
+					datafeature = data;
+				}
+				$.each(datafeature, function(i, star) {
+					systemLog.push('<li id="' + star.id + '">Star ' + (star+5) + ' at '+ star.posX + ',' + star.posY+'</li>');
+					//systemLog.push('<li id="' + f.id + '">Planet ' + i + ' at '+ (parseInt(f.posX) + 500000) + ',' + f.posY+'</li>');
+					addPoint(systemList, i+5, star.posX, star.posY);
+					
+					var planets = star.planets;
+					var j = 1;
+					for ( p in planets){
+						var planet = planets[p];
+						addPoint(planetList, planet.id, parseInt(star.posX) + (2 * j), star.posY);
+						j = j + 1;
+					}
+					/*
+					$.each(planets, function(j, planet) {
+						addPoint(planetList, planet.id, parseInt(star.posX) + (5 * j), star.posY);
+					});
+					*/
+					
+				});
+				$('<ul/>', {
+					'class': 'my-new-list',
+					html: systemLog.join('')
+				}).appendTo('#features');
+				
+				stars.addFeatures(systemList);
+				planets.addFeatures(planetList);
+			});
+			
+			stars.addFeatures(features);
+		});
+	</script>
+  </head>
+  <body>
+  	<div id="header" style="background-color: gray; overflow: auto;">
+  		<!-- Header Panel -->
+  		Under Construction: Stars and Planets as Features <a href="index.jsf">Back to Generator</a>
+  	</div>
+  	<div id="main" style="float: left; background-color: blue; overflow: auto;">
+  		<div id="map" class="bigmap"></div>
+  	</div>
+    <div id="menu" style="float: left; background-color: aqua;">
+    	<!-- Menu Panel -->
+    	Menu
+    	<div id="features" style="overflow: auto;"></div>
+    </div>
+    <div id="footer" style="clear: left; overflow: auto; background-color: orange;">
+    	<!-- Footer Panel -->
+    </div>
+    <!-- script src="js/openlayers/label-scale.js"></script-->
+    <script type="text/javascript">
+	    var style = new OpenLayers.Style({
+		        fillColor: "#ffcc66",
+		        strokeColor: "#ff9933",
+		        strokeWidth: 2,
+		        label: "${type}",
+		        fontColor: "#333333",
+		        fontFamily: "sans-serif",
+		        fontWeight: "bold"
+	    	}, {
+	        rules: [
+	            new OpenLayers.Rule({
+	                minScaleDenominator: 200000000,
+	                symbolizer: {
+	                    pointRadius: 4,
+	                    fontSize: "6px"
+	                }
+	            }),
+	            new OpenLayers.Rule({
+	                maxScaleDenominator: 200000000,
+	                minScaleDenominator: 100000000,
+	                symbolizer: {
+	                    pointRadius: 8,
+	                    fontSize: "12px"
+	                }
+	            }),
+	            new OpenLayers.Rule({
+	                maxScaleDenominator: 100000000,
+	                minScaleDenominator: 50000000,
+	                symbolizer: {
+	                    pointRadius: 12,
+	                    fontSize: "18px"
+	                }
+	            }),
+	            new OpenLayers.Rule({
+	                maxScaleDenominator: 50000000,
+	                minScaleDenominator: 25000000,
+	                symbolizer: {
+	                    pointRadius: 16,
+	                    fontSize: "18px"
+	                }
+	            }),
+	            new OpenLayers.Rule({
+	                maxScaleDenominator: 25000000,
+	                symbolizer: {
+	                    pointRadius: 20,
+	                    fontSize: "18px"
+	                }
+	            }),
+	            new OpenLayers.Rule({
+	                // a rule contains an optional filter
+	                filter: new OpenLayers.Filter.Comparison({
+	                    type: OpenLayers.Filter.Comparison.LESS_THAN,
+	                    property: "foo", // the "foo" feature attribute
+	                    value: 25
+	                }),
+	                // if a feature matches the above filter, use this symbolizer
+	                symbolizer: {
+	                	fillColor: "white"
+	                }
+	            }),
+	            new OpenLayers.Rule({
+	                filter: new OpenLayers.Filter.Comparison({
+	                    type: OpenLayers.Filter.Comparison.BETWEEN,
+	                    property: "foo",
+	                    lowerBoundary: 25,
+	                    upperBoundary: 50
+	                }),
+	                symbolizer: {
+	                	fillColor: "green"
+	                }
+	            }),
+	            new OpenLayers.Rule({
+	                filter: new OpenLayers.Filter.Comparison({
+	                    type: OpenLayers.Filter.Comparison.BETWEEN,
+	                    property: "foo",
+	                    lowerBoundary: 50,
+	                    upperBoundary: 75
+	                }),
+	                symbolizer: {
+	                	fillColor: "blue"
+	                }
+	            })
+	        ]
+	    });
+	    
+	    var stylePlanetary = new OpenLayers.Style({
+	        fillColor: "#ffcc66",
+	        strokeColor: "#ff9933",
+	        strokeWidth: 2,
+	        label: "${type}",
+	        fontColor: "#333333",
+	        fontFamily: "sans-serif",
+	        fontWeight: "bold"
+    	}, {
+	        rules: [
+	            new OpenLayers.Rule({
+	            	maxScaleDenominator: 25000000,
+	                symbolizer: {
+	                    pointRadius: 4,
+	                    fontSize: "6px"
+	                }
+	            })
+	        ]
+	    });
+	
+	    // Create a vector layer and give it your style map.
+	    var stars = new OpenLayers.Layer.Vector("Stars", {
+	        styleMap: new OpenLayers.StyleMap({
+	            "default": style,
+	            select: {
+	                fillColor: "red",
+	                pointRadius: 13,
+	                strokeColor: "yellow",
+	                strokeWidth: 3
+	            }
+	        }),
+	        //isBaseLayer: true, --> stars are not drawn with that
+	        renderers: ["Canvas"]
+	    });
+	    
+	    var planets = new OpenLayers.Layer.Vector("Planets", {
+	        styleMap: new OpenLayers.StyleMap({
+	            "default": stylePlanetary
+	        }),
+	        //isBaseLayer: true, layer are not drawn with that
+	        renderers: ["Canvas"]
+	    });
+	    
+	    var map = new OpenLayers.Map({
+	        div: "map",
+	        //projection: "EPSG:900913", // -20000000,20000000 - 20000000,-20000000
+	        projection: "EPSG:4326",  // -180,180 - 180,-180
+	        layers: [
+	    	new OpenLayers.Layer.XYZ(
+	    	        "StarMap",
+	    	        ["jaxrs/map/base/1/${z}/${x}/${y}"],
+	    	        {
+	    	            transitionEffect: "resize"
+	    	        }
+	    	    ),
+	    	    stars,
+	    	    planets
+	        ],
+	        controls: [ new OpenLayers.Control.LayerSwitcher(),
+	                    new OpenLayers.Control.Navigation(),
+	                    new OpenLayers.Control.MousePosition(),
+	                    new OpenLayers.Control.Zoom()
+	        		  ],
+	        center: [0, 0],
+	        numZoomLevels: 6,
+	        zoom: 1
+	    });
+
+	    var selectControl = new OpenLayers.Control.SelectFeature(stars);
+	    map.addControl(selectControl);
+	    selectControl.activate();
+	    stars.events.on({
+	        'featureselected': onFeatureSelect,
+	        'featureunselected': onFeatureUnselect
+	    });
+
+	    //Needed only for interaction, not for the display.
+	    function onPopupClose(evt) {
+	        // 'this' is the popup.
+	        var feature = this.feature;
+	        if (feature.layer) { // The feature is not destroyed
+	        	selectControl.unselect(feature);
+	        } else { // After "moveend" or "refresh" events on POIs layer all 
+	                 //     features have been destroyed by the Strategy.BBOX
+	            this.destroy();
+	        }
+	    }
+	    function onFeatureSelect(evt) {
+	        feature = evt.feature;
+	        popup = new OpenLayers.Popup.FramedCloud("featurePopup",
+	                                 feature.geometry.getBounds().getCenterLonLat(),
+	                                 new OpenLayers.Size(100,100),
+	                                 "<h2>"+feature.attributes.foo + "</h2>"
+	                                 + feature.attributes.posX + ","
+	                                 + feature.attributes.posY,
+	                                 null, true, onPopupClose);
+	        feature.popup = popup;
+	        popup.feature = feature;
+	        map.addPopup(popup, true);
+	    }
+	    function onFeatureUnselect(evt) {
+	        feature = evt.feature;
+	        if (feature.popup) {
+	            popup.feature = null;
+	            map.removePopup(feature.popup);
+	            feature.popup.destroy();
+	            feature.popup = null;
+	        }
+	    }
+    </script>
+  </body>
+</html>
