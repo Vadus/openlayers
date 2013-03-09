@@ -24,7 +24,17 @@ public class FeatureService implements Serializable {
 	private static Color[] starColors = new Color[] { Color.RED, Color.YELLOW,
 			Color.WHITE, Color.ORANGE, Color.CYAN };
 
-	private static final long MAX_WIDTH = 20000000 * 2;
+	/**
+	 * Map Projection = EPSG:900913
+	 */
+	// private static final int WIDTH = 20000000;
+	// private static final long MAX_WIDTH = WIDTH * 2;
+
+	/**
+	 * Map Projection = EPSG:4326
+	 */
+	private static final int WIDTH = 180;
+	private static final int MAX_WIDTH = WIDTH * 2;
 
 	// TODO: nicht mehr stateless!
 	private static List<Feature> featureStore = new ArrayList<Feature>();
@@ -101,8 +111,8 @@ public class FeatureService implements Serializable {
 			}
 
 			// shift position to bottom left
-			rX = rX - 20000000;
-			rY = rY - 20000000;
+			rX = rX - WIDTH;
+			rY = rY - WIDTH;
 
 			Feature mapElement = new Feature(i + 1, rX, rY);
 			// mapElement.setColor(starColors[color]);
