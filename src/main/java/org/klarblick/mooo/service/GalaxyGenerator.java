@@ -13,6 +13,8 @@ public class GalaxyGenerator {
 
 	public static final int GALAXY_WIDTH_HALF = 180;
 	public static final int GALAXY_WIDTH = GALAXY_WIDTH_HALF * 2;
+	public static final int GALAXY_HEIGH_HALF = 90;
+	public static final int GALAXY_HEIGH = GALAXY_HEIGH_HALF * 2;
 
 	private static final Logger log = Logger.getLogger(GalaxyResource.class
 			.getName());
@@ -73,10 +75,10 @@ public class GalaxyGenerator {
 						rX -= leastDistance;
 					}
 				}
-				rY = (int) (GALAXY_WIDTH / (double) 100 * randomPercentageY);
+				rY = (int) (GALAXY_HEIGH / (double) 100 * randomPercentageY);
 				// get at least $leastDistance away from tile border
-				if (rY % GALAXY_WIDTH < leastDistance) {
-					if (rY + leastDistance < GALAXY_WIDTH) {
+				if (rY % GALAXY_HEIGH < leastDistance) {
+					if (rY + leastDistance < GALAXY_HEIGH) {
 						rY += leastDistance;
 					} else {
 						rY -= leastDistance;
@@ -113,7 +115,7 @@ public class GalaxyGenerator {
 
 			// shift position to bottom left
 			rX = rX - GALAXY_WIDTH_HALF;
-			rY = rY - GALAXY_WIDTH_HALF;
+			rY = rY - GALAXY_HEIGH_HALF;
 
 			StarSystem system = new StarSystem(i + 1, rX, rY);
 			// mapElement.setColor(starColors[color]);

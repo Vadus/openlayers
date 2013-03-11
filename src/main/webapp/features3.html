@@ -36,56 +36,106 @@
     <script src="js/openlayers/OpenLayers.js" type="text/javascript"></script>
     <script src="http://code.jquery.com/jquery-1.8.3.js"></script>
     <script>
-	    function addPoint(features, index, posX, posY){
+	    function addPoint(features, index, id, posX, posY){
 			
 			features.push(new OpenLayers.Feature.Vector(
 			        new OpenLayers.Geometry.Point(posX, posY), {
 			        	type: index,
 			            //foo: 100 * Math.random() | 0,
-			            foo: index,
+			            foo: id,
 			            posX: posX,
 			            posY: posY
 			        }
 			    ));
 		}
+	    
+	    function addStarSystem(systemList, star){
+	    	
+	    	addPoint(systemList, star.id, star.id, star.posX, star.posY);
+
+	    }
+	    
+	    function updateStarSystems(layer, systems){
+	    	starsLayer.removeAllFeatures();
+			
+			var starsList = [];
+			
+			for ( s in systems ){
+				var star = systems[s];
+				addStarSystem(starsList, star);
+				//alert("Added star " + star.id);
+			}
+			
+			starsLayer.addFeatures(starsList);
+	    }
+	    
+	    function addPlanets(planetList, star){
+	    	var thisPlanets = [];
+			var j = 1;
+			var planets = star.planets;
+			for ( p in planets){
+				var planet = planets[p];
+				
+				var distX = 1 * j + 1;
+				var distY = 0.5 * j + 1;
+				var pAlpha = planet.angle;
+				var px = parseInt(star.posX) + distX * Math.cos(pAlpha);
+				var py = parseInt(star.posY) + distY * Math.sin(pAlpha);
+				//alert("Show planet at " + px + "," + py);
+				addPoint(planetList, planet.id, planet.id, px, py);
+				j = j + 1;
+			}
+	    }
+	    
+	    var systems = [];
+	    var systemView = false;
     
 		$(document).ready(function(){
 			
+			/*
 			var features = [];
 			
 			addPoint(features, 0, 0, 0);
-			addPoint(features, 1, -180, -180);
-			addPoint(features, 2, -180, 180);
-			addPoint(features, 3, 180, 180);
-			addPoint(features, 4, 180, -180);
+			addPoint(features, 1, -180, -90);
+			addPoint(features, 2, -180, 90);
+			addPoint(features, 3, 180, 90);
+			addPoint(features, 4, 180, -90);
+			*/
 			
 			$.getJSON('/openlayers/jaxrs/galaxy/1/systems', function(data) {
 				//alert("JSON Data: " + data.feature[0].id);
 				var systemLog = [];
-				var systemList = [];
-				var planetList = [];
+				
+				
+				//var planetList = [];
 				
 				var datafeature = data.starSystem;
 				if(datafeature === undefined){
 					datafeature = data;
 				}
 				$.each(datafeature, function(i, star) {
-					systemLog.push('<li id="' + star.id + '">Star ' + (star+5) + ' at '+ star.posX + ',' + star.posY+'</li>');
-					//systemLog.push('<li id="' + f.id + '">Planet ' + i + ' at '+ (parseInt(f.posX) + 500000) + ',' + f.posY+'</li>');
-					addPoint(systemList, i+5, star.posX, star.posY);
+					systemLog.push('<li id="' + star.id + '">Star ' + star.id + ' at '+ star.posX + ',' + star.posY+'</li>');
+					
+					systems.push(star);
+					/*
+					addPoint(systemList, i, star.id, star.posX, star.posY);
 					
 					var planets = star.planets;
 					var j = 1;
 					for ( p in planets){
 						var planet = planets[p];
-						addPoint(planetList, planet.id, parseInt(star.posX) + (2 * j), star.posY);
+						
+						var distX = 1 * j + 1;
+						var distY = 0.5 * j + 1;
+						var pAlpha = planet.angle;
+						var px = parseInt(star.posX) + distX * Math.cos(pAlpha);
+						var py = parseInt(star.posY) + distY * Math.sin(pAlpha);
+						//addPoint(planetList, planet.id, parseInt(star.posX) + (2 * j), star.posY);
+						addPoint(planetList, j, planet.id, px, py);
 						j = j + 1;
 					}
-					/*
-					$.each(planets, function(j, planet) {
-						addPoint(planetList, planet.id, parseInt(star.posX) + (5 * j), star.posY);
-					});
 					*/
+					
 					
 				});
 				$('<ul/>', {
@@ -93,11 +143,15 @@
 					html: systemLog.join('')
 				}).appendTo('#features');
 				
-				stars.addFeatures(systemList);
-				planets.addFeatures(planetList);
+				
+				//planetsLayer.addFeatures(planetList);
+				
+				updateStarSystems(starsLayer, systems);
 			});
 			
-			stars.addFeatures(features);
+			
+			
+			//stars.addFeatures(features);
 		});
 	</script>
   </head>
@@ -123,7 +177,7 @@
 		        fillColor: "#ffcc66",
 		        strokeColor: "#ff9933",
 		        strokeWidth: 2,
-		        label: "${type}",
+		        label: "${foo}",
 		        fontColor: "#333333",
 		        fontFamily: "sans-serif",
 		        fontWeight: "bold"
@@ -164,6 +218,13 @@
 	                maxScaleDenominator: 25000000,
 	                symbolizer: {
 	                    pointRadius: 20,
+	                    fontSize: "18px"
+	                }
+	            }),
+	            new OpenLayers.Rule({
+	                maxScaleDenominator: 12500000,
+	                symbolizer: {
+	                    pointRadius: 40,
 	                    fontSize: "18px"
 	                }
 	            }),
@@ -215,7 +276,7 @@
     	}, {
 	        rules: [
 	            new OpenLayers.Rule({
-	            	maxScaleDenominator: 25000000,
+	            	maxScaleDenominator: 12500000,
 	                symbolizer: {
 	                    pointRadius: 4,
 	                    fontSize: "6px"
@@ -225,7 +286,7 @@
 	    });
 	
 	    // Create a vector layer and give it your style map.
-	    var stars = new OpenLayers.Layer.Vector("Stars", {
+	    var starsLayer = new OpenLayers.Layer.Vector("Stars", {
 	        styleMap: new OpenLayers.StyleMap({
 	            "default": style,
 	            select: {
@@ -239,13 +300,15 @@
 	        renderers: ["Canvas"]
 	    });
 	    
-	    var planets = new OpenLayers.Layer.Vector("Planets", {
+	    var planetsLayer = new OpenLayers.Layer.Vector("Planets", {
 	        styleMap: new OpenLayers.StyleMap({
 	            "default": stylePlanetary
 	        }),
 	        //isBaseLayer: true, layer are not drawn with that
 	        renderers: ["Canvas"]
 	    });
+	    
+	    var mapZoomLevels = 7;
 	    
 	    var map = new OpenLayers.Map({
 	        div: "map",
@@ -259,8 +322,8 @@
 	    	            transitionEffect: "resize"
 	    	        }
 	    	    ),
-	    	    stars,
-	    	    planets
+	    	    starsLayer,
+	    	    planetsLayer
 	        ],
 	        controls: [ new OpenLayers.Control.LayerSwitcher(),
 	                    new OpenLayers.Control.Navigation(),
@@ -268,14 +331,14 @@
 	                    new OpenLayers.Control.Zoom()
 	        		  ],
 	        center: [0, 0],
-	        numZoomLevels: 6,
-	        zoom: 1
+	        numZoomLevels: mapZoomLevels,
+	        zoom: 2
 	    });
 
-	    var selectControl = new OpenLayers.Control.SelectFeature(stars);
+	    var selectControl = new OpenLayers.Control.SelectFeature(starsLayer);
 	    map.addControl(selectControl);
 	    selectControl.activate();
-	    stars.events.on({
+	    starsLayer.events.on({
 	        'featureselected': onFeatureSelect,
 	        'featureunselected': onFeatureUnselect
 	    });
@@ -313,6 +376,86 @@
 	            feature.popup = null;
 	        }
 	    }
+	    
+	    map.events.register("zoomend", this, function (e) {
+	    	if (map.getZoom() === mapZoomLevels-1 ) {
+	    		//alert("max Zoom reached at pos " + map.getCenter().lon + "," + map.getCenter().lat);
+	    		//find nearest starsystem
+	    		var distFromCenter = 180 * 2;
+	    		var nearestStar = null;
+	    		for (s in systems){
+	    			var star = systems[s];
+	    			
+	    			var cx = Math.round(map.getCenter().lon);
+	    			var cy = Math.round(map.getCenter().lat);
+	    			var sx = star.posX;
+	    			var sy = star.posY;
+	    			
+	    			var x = cx - sx;
+	    			if(sx > cx){
+	    				 x = sx - cx;
+	    			}
+	    			var y = cy - sy;
+	    			if(sy > cy){
+	    				y = sy - cy;
+	    			}
+	    			
+	    			var starDistFromCenter = Math.sqrt(x * x + y * y);
+	    			//alert("distance of star " + star.id + " at "+sx + "," + sy+" from center at "+cx+","+cy+" is " + starDistFromCenter + ", least distance so far: " + distFromCenter + (nearestStar != null? (" from star " + nearestStar.id):("") ));
+	    			if(starDistFromCenter < distFromCenter){
+	    				//alert("current distance of " + starDistFromCenter + " is smaller then overall distance " + distFromCenter);
+	    				distFromCenter = starDistFromCenter;
+	    				nearestStar = star;
+	    			}
+	    		}
+	    		
+	    		if(nearestStar != null){
+	    			//alert("nearest star is " + nearestStar.id)
+	    			starsLayer.removeAllFeatures();
+					planetsLayer.removeAllFeatures();
+	    			
+					var thisStar = [];
+					addStarSystem(thisStar, nearestStar);
+					
+					var thisPlanets = [];
+					addPlanets(thisPlanets, nearestStar)
+					
+					/*
+					
+					var j = 1;
+					var planets = nearestStar.planets;
+					for ( p in planets){
+						var planet = planets[p];
+						
+						var distX = 1 * j + 1;
+						var distY = 0.5 * j + 1;
+						var pAlpha = planet.angle;
+						var px = parseInt(nearestStar.posX) + distX * Math.cos(pAlpha);
+						var py = parseInt(nearestStar.posY) + distY * Math.sin(pAlpha);
+						//alert("Show planet at " + px + "," + py);
+						addPoint(thisPlanets, planet.id, planet.id, px, py);
+						j = j + 1;
+					}
+					*/
+					
+					starsLayer.addFeatures(thisStar);
+					planetsLayer.addFeatures(thisPlanets);
+					
+					starsLayer.refresh();
+					planetsLayer.refresh();
+					
+					systemView = true;
+	    		}
+	    		
+	    	}
+	    	else{
+	    		if(systemView){
+	    			updateStarSystems(starsLayer, systems);
+	    			starsLayer.refresh();
+	    			systemView = false;
+	    		}
+	    	}
+	    });
     </script>
   </body>
 </html>

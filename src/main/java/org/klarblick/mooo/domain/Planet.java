@@ -6,12 +6,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Planet {
 
 	private Long id;
+	private int angle;
 
 	public Planet() {
 	}
 
 	public Planet(Long id) {
 		this.id = id;
+		this.angle = (int) (Math.random() * 360) + 1;
 	}
 
 	public Long getId() {
@@ -22,4 +24,11 @@ public class Planet {
 		this.id = id;
 	}
 
+	public int getAngle() {
+		return angle;
+	}
+
+	public void setAngle(int angle) {
+		this.angle = angle;
+	}
 }

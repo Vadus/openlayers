@@ -27,14 +27,14 @@ public class FeatureService implements Serializable {
 	/**
 	 * Map Projection = EPSG:900913
 	 */
-	// private static final int WIDTH = 20000000;
-	// private static final long MAX_WIDTH = WIDTH * 2;
+	private static final int WIDTH = 20000000;
+	private static final long MAX_WIDTH = WIDTH * 2;
 
 	/**
 	 * Map Projection = EPSG:4326
 	 */
-	private static final int WIDTH = 180;
-	private static final int MAX_WIDTH = WIDTH * 2;
+	// private static final int WIDTH = 180;
+	// private static final int MAX_WIDTH = WIDTH * 2;
 
 	// TODO: nicht mehr stateless!
 	private static List<Feature> featureStore = new ArrayList<Feature>();
