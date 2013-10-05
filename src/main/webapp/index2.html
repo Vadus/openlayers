@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>GalCiv with three.js</title>
+		 <link rel=stylesheet href="css/base.css"/>
+	</head>
+	<body>
+
+		<div id="container"></div>
+
+		<script src="js/threejs/three.min.js"></script>
+		<script src="js/threejs/loaders/OBJLoader.js"></script>
+		<script src="js/threejs/GalaxyRaycaster.js"></script>
+		<script src="js/threejs/OrbitControls.js"></script>
+		<script src="js/threejs/THREEx.WindowResize.js"></script>
+		<script src="js/threejs/three_galaxy.js"></script>
+
+		<!-- ---------------- Custom Shader Code ------------------------ -->
+		<!--
+		<script id="vertexShader_glow" type="x-shader/x-vertex">
+		uniform vec3 viewVector;
+		uniform float c;
+		uniform float p;
+		varying float intensity;
+		void main() 
+		{
+		    vec3 vNormal = normalize( normalMatrix * normal );
+			vec3 vNormel = normalize( normalMatrix * viewVector );
+			intensity = pow( c - dot(vNormal, vNormel), p );
+			
+		    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+		}
+		</script>
+		-->
+		<!-- fragment shader a.k.a. pixel shader -->
+		<!--
+		<script id="fragmentShader_glow" type="x-shader/x-vertex"> 
+		uniform vec3 glowColor;
+		varying float intensity;
+		void main() 
+		{
+			vec3 glow = glowColor * intensity;
+		    gl_FragColor = vec4( glow, 1.0 );
+		}
+		</script>
+		-->
+		<script>
+		
+			var projector = new THREE.Projector();
+			
+			
+			var container = document.getElementById('container');
+			var galaxy = new Three_Galaxy(container);
+			
+			animate();
+			
+			function animate() {
+
+				requestAnimationFrame(animate);
+
+				render();
+				
+				update();
+			}
+
+			function render() {
+				galaxy.render();
+			}
+			
+			function update(){
+				galaxy.update();
+			}
+			
+		</script>
+	</body>
+</html>
